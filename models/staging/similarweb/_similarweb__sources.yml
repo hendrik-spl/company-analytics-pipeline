@@ -1,0 +1,153 @@
+version: 2
+
+sources:
+  - name: sw_data
+    description: "SimilarWeb global traffic growth data from Snowflake Marketplace"
+    database: sw_data
+    schema: datafeeds
+    tables:
+      - name: global_growth
+        description: "Raw web traffic and engagement metrics for global websites"
+        columns:
+          - name: clean_site
+            description: "Cleaned website domain"
+          
+          - name: site
+            description: "Website domain (primary identifier)"
+            tests:
+              - not_null
+          
+          - name: site_category
+            description: "Specific category classification of the website"
+          
+          - name: main_category
+            description: "Primary category classification of the website"
+          
+          - name: global_rank
+            description: "Global ranking of the website by traffic"
+          
+          - name: country_rank
+            description: "Country-specific ranking of the website"
+          
+          - name: main_category_rank
+            description: "Ranking within the main category"
+          
+          - name: category_rank
+            description: "Ranking within the specific category"
+          
+          - name: desktop_estimated_visits
+            description: "Estimated visits from desktop devices"
+          
+          - name: desktop_estimated_page_views
+            description: "Estimated page views from desktop devices"
+          
+          - name: desktop_pages_per_visit
+            description: "Average pages per visit on desktop"
+          
+          - name: desktop_bounce_rate
+            description: "Bounce rate for desktop traffic"
+          
+          - name: desktop_visits_duration
+            description: "Average visit duration on desktop in seconds"
+          
+          - name: desktop_estimated_unique
+            description: "Estimated unique visitors from desktop"
+          
+          - name: mobileweb_estimated_visits
+            description: "Estimated visits from mobile web browsers"
+          
+          - name: mobileweb_estimated_page_views
+            description: "Estimated page views from mobile web"
+          
+          - name: mobileweb_pages_per_visit
+            description: "Average pages per visit on mobile web"
+          
+          - name: mobileweb_bounce_rate
+            description: "Bounce rate for mobile web traffic"
+          
+          - name: mobileweb_visits_duration
+            description: "Average visit duration on mobile web in seconds"
+          
+          - name: mobileweb_estimated_unique
+            description: "Estimated unique visitors from mobile web"
+          
+          - name: total_estimated_visits
+            description: "Total estimated visits across all platforms"
+          
+          - name: total_estimated_pageviews
+            description: "Total estimated page views"
+          
+          - name: total_pages_per_visit
+            description: "Average pages viewed per visit"
+          
+          - name: total_bounce_rate
+            description: "Overall bounce rate across all platforms"
+          
+          - name: total_visits_duration
+            description: "Average visit duration in seconds"
+          
+          - name: total_estimated_unique
+            description: "Total estimated unique visitors"
+          
+          - name: deduplicated_audience
+            description: "Deduplicated audience count across platforms"
+          
+          - name: desktop_direct_estimated_visits
+            description: "Estimated desktop visits from direct traffic"
+          
+          - name: desktop_mail_estimated_visits
+            description: "Estimated desktop visits from email traffic"
+          
+          - name: desktop_referrals_estimated_visits
+            description: "Estimated desktop visits from referral traffic"
+          
+          - name: desktop_social_estimated_visits
+            description: "Estimated desktop visits from social media"
+          
+          - name: desktop_organic_search_estimated_visits
+            description: "Estimated desktop visits from organic search"
+          
+          - name: desktop_paid_search_estimated_visits
+            description: "Estimated desktop visits from paid search"
+          
+          - name: desktop_display_estimated_visits
+            description: "Estimated desktop visits from display advertising"
+          
+          - name: total_males_share
+            description: "Percentage of male visitors"
+          
+          - name: total_females_share
+            description: "Percentage of female visitors"
+          
+          - name: total_ages_18_to_24_share
+            description: "Percentage of visitors aged 18-24"
+          
+          - name: total_ages_25_to_34_share
+            description: "Percentage of visitors aged 25-34"
+          
+          - name: total_ages_35_to_44_share
+            description: "Percentage of visitors aged 35-44"
+          
+          - name: total_ages_45_to_54_share
+            description: "Percentage of visitors aged 45-54"
+          
+          - name: total_ages_55_to_64_share
+            description: "Percentage of visitors aged 55-64"
+          
+          - name: total_ages_65_plus_share
+            description: "Percentage of visitors aged 65+"
+          
+          - name: country
+            description: "Country code where the site is primarily based"
+          
+          - name: year
+            description: "Year of the traffic data"
+            tests:
+              - not_null
+          
+          - name: month
+            description: "Month of the traffic data (1-12)"
+            tests:
+              - not_null
+              - accepted_values:
+                  values: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]

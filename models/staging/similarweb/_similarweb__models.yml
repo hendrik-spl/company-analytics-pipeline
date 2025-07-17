@@ -1,0 +1,161 @@
+version: 2
+
+models:
+  - name: stg_sw__web_traffic
+    description: "Staging model for SimilarWeb global traffic data with standardized naming and data quality checks"
+    columns:
+      - name: web_traffic_id
+        description: "Surrogate key generated from site + year + month combination"
+        tests:
+          - unique
+          - not_null
+      
+      - name: site_domain
+        description: "Website domain (e.g., google.com, facebook.com)"
+        tests:
+          - not_null
+      
+      - name: cleaned_site_domain
+        description: "Cleaned version of the website domain"
+      
+      - name: traffic_year
+        description: "Year of the traffic measurement"
+        tests:
+          - not_null
+      
+      - name: traffic_month
+        description: "Month of the traffic measurement (1-12)"
+        tests:
+          - not_null
+          - accepted_values:
+              values: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+      
+      - name: site_main_category
+        description: "Primary category classification (e.g., News & Media, E-commerce)"
+      
+      - name: site_category
+        description: "More specific category classification"
+      
+      - name: site_country
+        description: "Country code where the site is primarily based"
+      
+      - name: site_global_rank
+        description: "Global ranking by traffic volume (lower number = higher rank)"
+      
+      - name: site_country_rank
+        description: "Country-specific ranking by traffic volume"
+      
+      - name: site_main_category_rank
+        description: "Ranking within the main category"
+      
+      - name: site_category_rank
+        description: "Ranking within the specific category"
+      
+      - name: desktop_visits
+        description: "Estimated monthly visits from desktop devices"
+      
+      - name: desktop_unique_visitors
+        description: "Estimated unique visitors from desktop devices"
+      
+      - name: desktop_page_views
+        description: "Estimated page views from desktop devices"
+      
+      - name: desktop_pages_per_visit
+        description: "Average pages viewed per desktop visit"
+      
+      - name: desktop_visit_duration_seconds
+        description: "Average desktop visit duration in seconds"
+      
+      - name: desktop_bounce_rate
+        description: "Desktop bounce rate (percentage of single-page visits)"
+      
+      - name: desktop_direct_visits
+        description: "Estimated desktop visits from direct traffic"
+      
+      - name: desktop_organic_search_visits
+        description: "Estimated desktop visits from organic search"
+      
+      - name: desktop_paid_search_visits
+        description: "Estimated desktop visits from paid search"
+      
+      - name: desktop_referral_visits
+        description: "Estimated desktop visits from referral traffic"
+      
+      - name: desktop_social_visits
+        description: "Estimated desktop visits from social media"
+      
+      - name: desktop_display_visits
+        description: "Estimated desktop visits from display advertising"
+      
+      - name: desktop_email_visits
+        description: "Estimated desktop visits from email campaigns"
+      
+      - name: mobile_visits
+        description: "Estimated monthly visits from mobile web browsers"
+      
+      - name: mobile_unique_visitors
+        description: "Estimated unique visitors from mobile web"
+      
+      - name: mobile_page_views
+        description: "Estimated page views from mobile web"
+      
+      - name: mobile_pages_per_visit
+        description: "Average pages viewed per mobile visit"
+      
+      - name: mobile_visit_duration_seconds
+        description: "Average mobile visit duration in seconds"
+      
+      - name: mobile_bounce_rate
+        description: "Mobile bounce rate (percentage of single-page visits)"
+      
+      - name: total_visits
+        description: "Total estimated monthly visits across all platforms"
+        tests:
+          - not_null
+      
+      - name: total_unique_visitors
+        description: "Total estimated unique visitors across all platforms"
+      
+      - name: total_page_views
+        description: "Total estimated page views across all platforms"
+      
+      - name: total_pages_per_visit
+        description: "Average pages viewed per visit (all platforms)"
+      
+      - name: total_visit_duration_seconds
+        description: "Average visit duration in seconds (all platforms)"
+      
+      - name: total_bounce_rate
+        description: "Overall bounce rate across all platforms"
+      
+      - name: deduplicated_audience
+        description: "Deduplicated audience count across desktop and mobile"
+      
+      - name: age_18_24_share
+        description: "Percentage of visitors aged 18-24"
+      
+      - name: age_25_34_share
+        description: "Percentage of visitors aged 25-34"
+      
+      - name: age_35_44_share
+        description: "Percentage of visitors aged 35-44"
+      
+      - name: age_45_54_share
+        description: "Percentage of visitors aged 45-54"
+      
+      - name: age_55_64_share
+        description: "Percentage of visitors aged 55-64"
+      
+      - name: age_65_plus_share
+        description: "Percentage of visitors aged 65 and above"
+      
+      - name: male_share
+        description: "Percentage of male visitors"
+      
+      - name: female_share
+        description: "Percentage of female visitors"
+      
+      - name: _loaded_at
+        description: "Timestamp when this record was loaded into the staging layer"
+        tests:
+          - not_null
