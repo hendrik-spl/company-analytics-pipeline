@@ -1,0 +1,72 @@
+version: 2
+
+sources:
+  - name: cb_data
+    description: "Crunchbase data from Snowflake Marketplace"
+    database: cb_data
+    schema: public
+    tables:
+      - name: organization_summary
+        description: "Raw organization data from Crunchbase containing company information, geographic data, and social media presence"
+        columns:
+          - name: uuid
+            description: "Unique identifier for each organization"
+            tests:
+              - unique
+              - not_null
+          
+          - name: name
+            description: "Organization name"
+            tests:
+              - not_null
+          
+          - name: type
+            description: "Type of organization (e.g., company, investor, school)"
+          
+          - name: permalink
+            description: "Crunchbase permalink for the organization"
+          
+          - name: cb_url
+            description: "Crunchbase profile URL"
+          
+          - name: roles
+            description: "Roles the organization plays in the ecosystem"
+          
+          - name: short_description
+            description: "Brief description of the organization"
+          
+          - name: logo_url
+            description: "URL to organization's logo image"
+          
+          - name: domain
+            description: "Primary domain/website for the organization"
+          
+          - name: homepage_url
+            description: "Organization's main website URL"
+          
+          - name: facebook_url
+            description: "Facebook page URL"
+          
+          - name: linkedin_url
+            description: "LinkedIn company page URL"
+          
+          - name: twitter_url
+            description: "Twitter profile URL"
+          
+          - name: city
+            description: "Primary city where organization is located"
+          
+          - name: region
+            description: "Geographic region of the organization"
+          
+          - name: state_code
+            description: "State or province code"
+          
+          - name: country_code
+            description: "ISO country code"
+          
+          - name: created_at
+            description: "Timestamp when the record was created in Crunchbase"
+          
+          - name: updated_at
+            description: "Timestamp when the record was last updated in Crunchbase"

@@ -1,0 +1,76 @@
+version: 2
+
+models:
+  - name: stg_cb__organizations
+    description: "Staging model for Crunchbase organizations data with standardized naming and basic transformations"
+    columns:
+      - name: organization_id
+        description: "Unique identifier for each organization (derived from UUID)"
+        tests:
+          - unique
+          - not_null
+      
+      - name: organization_name
+        description: "Name of the organization"
+        tests:
+          - not_null
+      
+      - name: organization_permalink
+        description: "Crunchbase permalink identifier for the organization"
+      
+      - name: organization_domain
+        description: "Primary domain/website for the organization"
+      
+      - name: organization_type
+        description: "Type of organization (e.g., company, investor, school)"
+      
+      - name: organization_roles
+        description: "Comma-separated roles the organization plays in the ecosystem"
+      
+      - name: organization_description
+        description: "Brief description of what the organization does"
+      
+      - name: organization_city
+        description: "Primary city where the organization is headquartered"
+      
+      - name: organization_region
+        description: "Geographic region of the organization"
+      
+      - name: organization_state_code
+        description: "State or province code where organization is located"
+      
+      - name: organization_country_code
+        description: "ISO country code for organization's location"
+      
+      - name: organization_homepage_url
+        description: "Organization's main website URL"
+      
+      - name: organization_cb_url
+        description: "Crunchbase profile URL for the organization"
+      
+      - name: organization_facebook_url
+        description: "Facebook page URL if available"
+      
+      - name: organization_linkedin_url
+        description: "LinkedIn company page URL if available"
+      
+      - name: organization_twitter_url
+        description: "Twitter profile URL if available"
+      
+      - name: organization_logo_url
+        description: "URL to organization's logo image"
+      
+      - name: organization_created_at
+        description: "Timestamp when the organization record was created in Crunchbase (UTC)"
+        tests:
+          - not_null
+      
+      - name: organization_updated_at
+        description: "Timestamp when the organization record was last updated in Crunchbase (UTC)"
+        tests:
+          - not_null
+      
+      - name: _loaded_at
+        description: "Timestamp when this record was loaded into our data warehouse"
+        tests:
+          - not_null
