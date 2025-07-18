@@ -1,12 +1,23 @@
 {{
     config(
-        materialized='table'
+        materialized='incremental',
+        unique_key='web_traffic_id',
+        on_schema_change='fail',
+        incremental_strategy='merge'
     )
 }}
 
 with base_traffic as (
     select * from {{ ref('stg_sw__web_traffic') }}
     where total_visits > 0  {# Filter out sites with no traffic #}
+    
+    {# This is the key part - only process new data on incremental runs #}
+    {% if is_incremental() %}
+        -- Only process data newer than what we already have
+        and (traffic_year > (select max(traffic_year) from {{ this }})
+             or (traffic_year = (select max(traffic_year) from {{ this }}) 
+                 and traffic_month > (select max(traffic_month) from {{ this }} where traffic_year = (select max(traffic_year) from {{ this }}))))
+    {% endif %}
 ),
 
 platform_metrics as (
