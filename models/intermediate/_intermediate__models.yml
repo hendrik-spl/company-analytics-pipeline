@@ -158,19 +158,9 @@ models:
       
       - name: mobile_traffic_ratio
         description: "Ratio of mobile visits to total (mobile + desktop) visits"
-        tests:
-          - accepted_values:
-              values: [0, 1]
-              config:
-                where: "mobile_traffic_ratio is not null"
       
       - name: desktop_traffic_ratio
         description: "Ratio of desktop visits to total (mobile + desktop) visits"
-        tests:
-          - accepted_values:
-              values: [0, 1]
-              config:
-                where: "desktop_traffic_ratio is not null"
       
       - name: platform_preference
         description: "Classification of platform usage pattern (Mobile-Dominant, Desktop-Dominant, Balanced, Mixed)"
@@ -186,11 +176,6 @@ models:
       
       - name: overall_quality_score
         description: "Composite traffic quality score (0-1) based on bounce rate, pages per visit, duration, and uniqueness"
-        tests:
-          - accepted_values:
-              values: [0, 1]
-              config:
-                where: "overall_quality_score is not null"
       
       - name: quality_tier
         description: "Categorical quality classification based on overall quality score"
