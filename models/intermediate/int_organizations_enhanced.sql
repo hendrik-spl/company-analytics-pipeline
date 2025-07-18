@@ -6,7 +6,7 @@
 
 with base_organizations as (
     select * from {{ ref('stg_cb__organizations') }}
-    where organization_country_code = 'DNK'
+    where organization_country_code IN ('DNK', 'SWE', 'NOR', 'FIN', 'ISL')
 ),
 
 geographic_standardized as (

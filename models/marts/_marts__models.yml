@@ -30,11 +30,11 @@ models:
         description: "Standardized Danish region name (e.g., Capital Region, Central Denmark Region)"
       
       - name: organization_country_code
-        description: "ISO country code for organization's location (DNK for Danish companies)"
+        description: "ISO country code for organization's location"
         tests:
           - not_null
           - accepted_values:
-              values: ['DNK']
+              values: ['DNK', 'SWE', 'NOR', 'FIN', 'ISL']
       
       - name: is_investor
         description: "Boolean flag indicating if organization has investor-related roles"
@@ -463,11 +463,11 @@ models:
         description: "Standardized Danish region name"
       
       - name: organization_country_code
-        description: "ISO country code for organization's location (DNK for Danish companies)"
+        description: "ISO country code for organization's location"
         tests:
           - not_null
           - accepted_values:
-              values: ['DNK']
+              values: ['DNK', 'SWE', 'NOR', 'FIN', 'ISL']
       
       - name: is_investor
         description: "Boolean flag indicating if organization has investor-related roles"
@@ -1169,12 +1169,12 @@ models:
         description: "Standardized Danish region name (e.g., Capital Region, Central Denmark Region)"
       
       - name: organization_country_code
-        description: "ISO country code for organization's location (DNK for Danish investors)"
+        description: "ISO country code for organization's location"
         tests:
           - not_null
           - accepted_values:
-              values: ['DNK']
-      
+              values: ['DNK', 'SWE', 'NOR', 'FIN', 'ISL']
+
       - name: organization_created_at
         description: "Timestamp when investor organization was created in Crunchbase"
         tests:

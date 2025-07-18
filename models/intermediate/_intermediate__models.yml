@@ -42,11 +42,11 @@ models:
         description: "State or province code where organization is located"
       
       - name: organization_country_code
-        description: "ISO country code for organization's location (filtered to DNK only)"
+        description: "ISO country code for organization's location"
         tests:
           - not_null
           - accepted_values:
-              values: ['DNK']
+              values: ['DNK', 'SWE', 'NOR', 'FIN', 'ISL']
       
       - name: organization_domain
         description: "Original domain/website for the organization"
@@ -349,11 +349,11 @@ models:
         description: "Standardized Danish region name"
       
       - name: organization_country_code
-        description: "ISO country code for organization (should be DNK for Danish companies)"
+        description: "ISO country code for organization"
         tests:
           - not_null
           - accepted_values:
-              values: ['DNK']
+              values: ['DNK', 'SWE', 'NOR', 'FIN', 'ISL']
       
       - name: is_investor
         description: "Boolean flag indicating if organization has investor-related roles"
