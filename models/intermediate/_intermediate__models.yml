@@ -1,0 +1,101 @@
+version: 2
+
+models:
+  - name: int_organizations_enhanced
+    description: "Enhanced intermediate model for Danish organizations with geographic standardization, role parsing, and domain cleanup"
+    columns:
+      - name: organization_id
+        description: "Unique identifier for each organization (derived from UUID)"
+        tests:
+          - unique
+          - not_null
+      
+      - name: organization_name
+        description: "Name of the organization"
+        tests:
+          - not_null
+      
+      - name: organization_permalink
+        description: "Crunchbase permalink identifier for the organization"
+      
+      - name: organization_type
+        description: "Type of organization (e.g., company, investor, school)"
+      
+      - name: organization_description
+        description: "Brief description of what the organization does"
+      
+      - name: organization_city
+        description: "Original city name from source data"
+      
+      - name: standardized_city
+        description: "Standardized Danish city name with common variants unified (e.g., København/Copenhagen)"
+        tests:
+          - not_null
+      
+      - name: organization_region
+        description: "Original region name from source data"
+      
+      - name: standardized_region
+        description: "Standardized Danish region name (e.g., Capital Region, Central Denmark Region)"
+      
+      - name: organization_state_code
+        description: "State or province code where organization is located"
+      
+      - name: organization_country_code
+        description: "ISO country code for organization's location (filtered to DNK only)"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['DNK']
+      
+      - name: organization_domain
+        description: "Original domain/website for the organization"
+      
+      - name: standardized_domain
+        description: "Cleaned domain with www/protocol removed and lowercased"
+      
+      - name: root_domain
+        description: "Root domain with subdomains removed (e.g., example.com from www.blog.example.com)"
+      
+      - name: organization_roles
+        description: "Original comma-separated roles the organization plays in the ecosystem"
+      
+      - name: is_investor
+        description: "Boolean flag indicating if organization has investor-related roles"
+        tests:
+          - not_null
+          - accepted_values:
+              values: [true, false]
+            
+      - name: organization_homepage_url
+        description: "Organization's main website URL"
+      
+      - name: organization_cb_url
+        description: "Crunchbase profile URL for the organization"
+      
+      - name: organization_facebook_url
+        description: "Facebook page URL if available"
+      
+      - name: organization_linkedin_url
+        description: "LinkedIn company page URL if available"
+      
+      - name: organization_twitter_url
+        description: "Twitter profile URL if available"
+      
+      - name: organization_logo_url
+        description: "URL to organization's logo image"
+      
+      - name: organization_created_at
+        description: "Timestamp when the organization record was created in Crunchbase (UTC)"
+        tests:
+          - not_null
+      
+      - name: organization_updated_at
+        description: "Timestamp when the organization record was last updated in Crunchbase (UTC)"
+        tests:
+          - not_null
+      
+      - name: _enhanced_at
+        description: "Timestamp when this record was processed through the enhancement logic"
+        tests:
+          - not_null
