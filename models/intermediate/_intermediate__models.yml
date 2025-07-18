@@ -318,3 +318,161 @@ models:
         description: "Timestamp when this record was processed through the enhancement logic"
         tests:
           - not_null
+  
+  - name: int_company_web_bridge
+    description: "Bridge table matching Danish organizations with their corresponding web traffic data through domain matching. Serves as the foundation for enhancing company data with traffic insights."
+    columns:
+      - name: company_web_bridge_id
+        description: "Surrogate key generated from organization_id + web_traffic_id combination"
+        tests:
+          - unique
+          - not_null
+      
+      - name: organization_id
+        description: "Foreign key to organizations - unique identifier for each company"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('int_organizations_enhanced')
+              field: organization_id
+      
+      - name: web_traffic_id
+        description: "Foreign key to web traffic data - unique identifier for each traffic record"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('int_web_traffic_enhanced')
+              field: web_traffic_id
+      
+      - name: organization_name
+        description: "Name of the matched organization"
+        tests:
+          - not_null
+      
+      - name: organization_permalink
+        description: "Crunchbase permalink for the organization"
+      
+      - name: organization_domain
+        description: "Standardized domain from organization data used for matching"
+        tests:
+          - not_null
+      
+      - name: standardized_city
+        description: "Standardized city name where organization is located"
+      
+      - name: standardized_region
+        description: "Standardized Danish region name"
+      
+      - name: organization_country_code
+        description: "ISO country code for organization (should be DNK for Danish companies)"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['DNK']
+      
+      - name: is_investor
+        description: "Boolean flag indicating if organization has investor-related roles"
+        tests:
+          - not_null
+          - accepted_values:
+              values: [true, false]
+      
+      - name: organization_created_at
+        description: "Timestamp when organization was created in Crunchbase"
+        tests:
+          - not_null
+      
+      - name: organization_updated_at
+        description: "Timestamp when organization was last updated in Crunchbase"
+        tests:
+          - not_null
+      
+      - name: traffic_domain
+        description: "Cleaned domain from traffic data that matched with organization"
+        tests:
+          - not_null
+      
+      - name: traffic_year
+        description: "Year of the traffic measurement"
+        tests:
+          - not_null
+      
+      - name: traffic_month
+        description: "Month of the traffic measurement (1-12)"
+        tests:
+          - not_null
+          - accepted_values:
+              values: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+      
+      - name: site_main_category
+        description: "Primary category classification from SimilarWeb"
+      
+      - name: site_category
+        description: "Specific category classification from SimilarWeb"
+      
+      - name: traffic_country
+        description: "Country code where the website traffic is primarily based"
+      
+      - name: site_global_rank
+        description: "Global ranking by traffic volume (lower number = higher rank)"
+      
+      - name: total_visits
+        description: "Total estimated monthly visits across all platforms"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 1
+              inclusive: true
+      
+      - name: total_unique_visitors
+        description: "Total estimated unique visitors across all platforms"
+      
+      - name: overall_quality_score
+        description: "Composite traffic quality score (0-1) from web traffic enhancement"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+              config:
+                where: "overall_quality_score is not null"
+      
+      - name: quality_tier
+        description: "Categorical quality classification"
+        tests:
+          - accepted_values:
+              values: ['High-Quality', 'Medium-Quality', 'Low-Quality', 'Unknown-Quality']
+      
+      - name: platform_preference
+        description: "Platform usage pattern classification"
+        tests:
+          - accepted_values:
+              values: ['Mobile-Dominant', 'Desktop-Dominant', 'Balanced', 'Mixed']
+      
+      - name: match_confidence_score
+        description: "Confidence score for the domain match (0-1, where 1 is perfect match)"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+      
+      - name: match_method
+        description: "Method used to create the match between organization and traffic data"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['exact_domain_match']
+      
+      - name: is_domain_match
+        description: "Boolean indicating successful domain matching"
+        tests:
+          - not_null
+          - accepted_values:
+              values: [true]  # Should only be true since we filter for successful matches
+      
+      - name: _bridged_at
+        description: "Timestamp when this bridge record was created"
+        tests:
+          - not_null
