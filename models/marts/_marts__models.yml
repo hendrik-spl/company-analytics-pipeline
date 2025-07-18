@@ -1141,3 +1141,383 @@ models:
           config:
             where: "avg_company_visits is not null and smallest_company_visits is not null"
           name: "average_above_smallest_company"
+
+  - name: mart_danish_investors
+    description: "Comprehensive mart for Danish investors with digital performance metrics, popularity rankings based on web traffic volume, and growth analysis to identify rising stars in the investment ecosystem."
+    columns:
+      - name: organization_id
+        description: "Unique identifier for each Danish investor organization (primary key)"
+        tests:
+          - unique
+          - not_null
+      
+      - name: organization_name
+        description: "Name of the investor organization"
+        tests:
+          - not_null
+      
+      - name: organization_permalink
+        description: "Crunchbase permalink identifier for the investor organization"
+      
+      - name: organization_domain
+        description: "Standardized domain used for matching with traffic data"
+      
+      - name: standardized_city
+        description: "Standardized Danish city name where investor is located"
+      
+      - name: standardized_region
+        description: "Standardized Danish region name (e.g., Capital Region, Central Denmark Region)"
+      
+      - name: organization_country_code
+        description: "ISO country code for organization's location (DNK for Danish investors)"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['DNK']
+      
+      - name: organization_created_at
+        description: "Timestamp when investor organization was created in Crunchbase"
+        tests:
+          - not_null
+      
+      - name: organization_updated_at
+        description: "Timestamp when investor organization was last updated in Crunchbase"
+        tests:
+          - not_null
+      
+      - name: has_digital_presence
+        description: "Boolean indicating if investor has identifiable web traffic data"
+        tests:
+          - not_null
+          - accepted_values:
+              values: [true, false]
+      
+      - name: has_growth_data
+        description: "Boolean indicating if investor has sufficient data for growth analysis (minimum 2 months)"
+        tests:
+          - not_null
+          - accepted_values:
+              values: [true, false]
+      
+      - name: site_domain
+        description: "Website domain from SimilarWeb traffic data, 'Unknown' if no digital presence"
+        tests:
+          - not_null
+      
+      - name: industry_category
+        description: "Primary industry category from SimilarWeb, 'Unknown' if no digital presence"
+        tests:
+          - not_null
+      
+      - name: industry_subcategory
+        description: "More specific industry subcategory from SimilarWeb, 'Unknown' if no digital presence"
+        tests:
+          - not_null
+      
+      - name: period_start
+        description: "Start month of traffic data period (YYYY-MM format), 'Unknown' if no digital presence"
+        tests:
+          - not_null
+      
+      - name: period_end
+        description: "End month of traffic data period (YYYY-MM format), 'Unknown' if no digital presence"
+        tests:
+          - not_null
+      
+      - name: months_available
+        description: "Number of distinct months with traffic data available, 0 if no digital presence"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      
+      - name: total_visits
+        description: "Total estimated visits summed across all available months, 0 if no digital presence"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      
+      - name: total_unique_visitors
+        description: "Total estimated unique visitors summed across all available months, 0 if no digital presence"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      
+      - name: total_page_views
+        description: "Total estimated page views summed across all available months, 0 if no digital presence"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      
+      - name: site_global_rank
+        description: "Best global ranking achieved across all months (lower number = higher rank), null if no digital presence"
+      
+      - name: site_country_rank
+        description: "Best country-specific ranking achieved across all months, null if no digital presence"
+      
+      - name: digital_performance_score
+        description: "Average digital performance score (0-1) across all months based on traffic quality metrics"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+              config:
+                where: "digital_performance_score is not null"
+      
+      - name: performance_tier
+        description: "Most common performance classification across months, 'Unknown' if no digital presence"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['High-Quality', 'Medium-Quality', 'Low-Quality', 'Unknown-Quality', 'Unknown']
+      
+      - name: platform_preference
+        description: "Most common platform usage pattern across months, 'Unknown' if no digital presence"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Mobile-Dominant', 'Desktop-Dominant', 'Balanced', 'Mixed', 'Unknown']
+      
+      - name: total_pages_per_visit
+        description: "Average pages viewed per visit across all months"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+              config:
+                where: "total_pages_per_visit is not null"
+      
+      - name: total_visit_duration_seconds
+        description: "Average visit duration in seconds across all months"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+              config:
+                where: "total_visit_duration_seconds is not null"
+      
+      - name: total_bounce_rate
+        description: "Average bounce rate across all months (0-1)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+              config:
+                where: "total_bounce_rate is not null"
+      
+      - name: visits_growth_rate
+        description: "Overall visits growth rate from first to last month ((last-first)/first)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: -1
+              inclusive: true
+              config:
+                where: "visits_growth_rate is not null"
+      
+      - name: visits_monthly_growth_rate
+        description: "Compound monthly growth rate for visits"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: -1
+              inclusive: true
+              config:
+                where: "visits_monthly_growth_rate is not null"
+      
+      - name: visits_absolute_change
+        description: "Absolute change in visits from first to last month"
+      
+      - name: quality_score_change
+        description: "Change in quality score from first to last month"
+      
+      - name: quality_score_change_rate
+        description: "Percentage change in quality score from first to last month"
+      
+      - name: global_rank_change
+        description: "Change in global rank from first to last month (positive = improvement)"
+      
+      - name: country_rank_change
+        description: "Change in country rank from first to last month (positive = improvement)"
+      
+      - name: growth_category
+        description: "Classification of overall growth pattern based on visits growth rate, 'Unknown' if no growth data"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['High Growth', 'Moderate Growth', 'Stable', 'Declining', 'Significant Decline', 'Insufficient Data', 'Unknown']
+      
+      - name: quality_trend
+        description: "Classification of quality score trend from first to last month, 'Unknown' if no growth data"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Quality Improving', 'Quality Stable', 'Quality Declining', 'Quality Unknown', 'Unknown']
+      
+      - name: ranking_trend
+        description: "Classification of global ranking trend (positive change = improvement), 'Unknown' if no growth data"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Rank Significantly Improved', 'Rank Improved', 'Rank Stable', 'Rank Declined', 'Rank Significantly Declined', 'Rank Unknown', 'Unknown']
+      
+      - name: performance_momentum
+        description: "Classification of current performance relative to peak achieved, 'Unknown' if no growth data"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Near Peak Performance', 'Strong Performance', 'Moderate Performance', 'Below Peak Performance', 'Performance Unknown', 'Unknown']
+      
+      - name: growth_health_score
+        description: "Combined growth health score (0-100) based on visits growth and quality improvement"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 100
+              inclusive: true
+              config:
+                where: "growth_health_score is not null"
+      
+      - name: peak_visits
+        description: "Highest monthly visits achieved during the period"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+              config:
+                where: "peak_visits is not null"
+      
+      - name: best_global_rank
+        description: "Best (lowest) global ranking achieved during the period"
+      
+      - name: peak_quality_score
+        description: "Highest quality score achieved during the period"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+              config:
+                where: "peak_quality_score is not null"
+      
+      - name: current_vs_peak_visits_ratio
+        description: "Ratio of last month visits to peak visits achieved (1.0 = at peak)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+              config:
+                where: "current_vs_peak_visits_ratio is not null"
+      
+      - name: current_vs_peak_quality_ratio
+        description: "Ratio of last month quality to peak quality achieved (1.0 = at peak)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+              config:
+                where: "current_vs_peak_quality_ratio is not null"
+      
+      - name: popularity_rank
+        description: "Rank based on total visits (1 = most popular), null if no digital presence"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 1
+              inclusive: true
+              config:
+                where: "popularity_rank is not null"
+      
+      - name: popularity_decile
+        description: "Popularity decile (1-10) based on total visits, null if no digital presence"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 1
+              max_value: 10
+              inclusive: true
+              config:
+                where: "popularity_decile is not null"
+      
+      - name: growth_rank
+        description: "Rank based on visits growth rate (1 = highest growth), null if no growth data"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 1
+              inclusive: true
+              config:
+                where: "growth_rank is not null"
+      
+      - name: growth_decile
+        description: "Growth decile (1-10) based on visits growth rate, null if no growth data"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 1
+              max_value: 10
+              inclusive: true
+              config:
+                where: "growth_decile is not null"
+      
+      - name: popularity_tier
+        description: "Classification of popularity based on traffic volume deciles"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Top Tier', 'High Popularity', 'Medium Popularity', 'Low Popularity', 'Minimal Popularity', 'No Digital Presence']
+      
+      - name: rising_star_tier
+        description: "Classification of growth potential based on growth deciles"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Rising Star', 'High Growth', 'Moderate Growth', 'Slow Growth', 'Declining', 'No Growth Data']
+      
+      - name: investor_classification
+        description: "Combined classification for easy identification of top performers and rising stars"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Popular & Rising', 'Popular & Established', 'Rising Star', 'Digital Present', 'Unknown Digital Status']
+      
+      - name: primary_age_segment
+        description: "Age group with the highest percentage of visitors, 'Unknown' if no digital presence"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['18-24', '25-34', '35-44', '45-54', '55-64', '65+', 'Unknown']
+      
+      - name: primary_gender_segment
+        description: "Gender segment classification based on visitor distribution, 'Unknown' if no digital presence"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Male-Leaning', 'Female-Leaning', 'Balanced', 'Unknown']
+      
+      - name: _mart_created_at
+        description: "Timestamp when this mart record was created"
+        tests:
+          - not_null
+    
+    tests:
+      - dbt_utils.expression_is_true:
+          expression: "case when has_digital_presence = true then popularity_rank is not null else popularity_rank is null end"
+          name: "popularity_rank_logic_consistent"
+      
+      - dbt_utils.expression_is_true:
+          expression: "case when has_growth_data = true then growth_rank is not null else growth_rank is null end"
+          name: "growth_rank_logic_consistent"
+      
+      - dbt_utils.expression_is_true:
+          expression: "case when has_digital_presence = false then total_visits = 0 else total_visits >= 0 end"
+          name: "total_visits_logic_consistent"
+      
+      - dbt_utils.expression_is_true:
+          expression: "case when has_digital_presence = false then site_domain = 'Unknown' else site_domain != 'Unknown' end"
+          name: "site_domain_logic_consistent"
