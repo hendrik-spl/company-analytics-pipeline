@@ -2,7 +2,7 @@ version: 2
 
 models:
   - name: mart_company_digital_performance
-    description: "Comprehensive digital performance mart for Danish companies with web traffic data. Provides a single source of truth for analyzing company digital presence, traffic patterns, audience demographics, and engagement quality."
+    description: "Comprehensive digital performance mart for Danish companies with web traffic data aggregated across all available months. Provides a single source of truth for analyzing company digital presence with summed traffic volumes, averaged engagement metrics, and best performance rankings."
     columns:
       - name: organization_id
         description: "Unique identifier for each organization (primary key)"
@@ -58,17 +58,23 @@ models:
         tests:
           - not_null
       
-      - name: traffic_year
-        description: "Year of the traffic measurement"
+      - name: period_start
+        description: "Start month of traffic data period (YYYY-MM format)"
         tests:
           - not_null
       
-      - name: traffic_month
-        description: "Month of the traffic measurement (1-12)"
+      - name: period_end
+        description: "End month of traffic data period (YYYY-MM format)"
         tests:
           - not_null
-          - accepted_values:
-              values: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+      
+      - name: months_available
+        description: "Number of distinct months with traffic data available"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 1
+              inclusive: true
       
       - name: industry_category
         description: "Primary industry category from SimilarWeb (e.g., E-commerce, News & Media, Finance)"
@@ -89,19 +95,19 @@ models:
               inclusive: true
       
       - name: site_global_rank
-        description: "Global ranking by traffic volume (lower number = higher rank)"
+        description: "Best global ranking achieved across all months (lower number = higher rank)"
       
       - name: site_country_rank
-        description: "Country-specific ranking by traffic volume"
+        description: "Best country-specific ranking achieved across all months"
       
       - name: site_main_category_rank
-        description: "Ranking within the main industry category"
+        description: "Best ranking within main industry category across all months"
       
       - name: site_category_rank
-        description: "Ranking within the specific industry subcategory"
+        description: "Best ranking within specific industry subcategory across all months"
       
       - name: digital_performance_score
-        description: "Overall digital performance score (0-1) based on traffic quality metrics"
+        description: "Average digital performance score (0-1) across all months based on traffic quality metrics"
         tests:
           - dbt_utils.accepted_range:
               min_value: 0
@@ -111,13 +117,13 @@ models:
                 where: "digital_performance_score is not null"
       
       - name: performance_tier
-        description: "Categorical performance classification based on digital performance score"
+        description: "Most common performance classification across months"
         tests:
           - accepted_values:
               values: ['High-Quality', 'Medium-Quality', 'Low-Quality', 'Unknown-Quality']
       
       - name: mobile_traffic_ratio
-        description: "Ratio of mobile visits to total (mobile + desktop) visits"
+        description: "Average ratio of mobile visits to total (mobile + desktop) visits across all months"
         tests:
           - dbt_utils.accepted_range:
               min_value: 0
@@ -127,7 +133,7 @@ models:
                 where: "mobile_traffic_ratio is not null"
       
       - name: desktop_traffic_ratio
-        description: "Ratio of desktop visits to total (mobile + desktop) visits"
+        description: "Average ratio of desktop visits to total (mobile + desktop) visits across all months"
         tests:
           - dbt_utils.accepted_range:
               min_value: 0
@@ -137,19 +143,19 @@ models:
                 where: "desktop_traffic_ratio is not null"
       
       - name: platform_preference
-        description: "Classification of platform usage pattern"
+        description: "Most common platform usage pattern across months"
         tests:
           - accepted_values:
               values: ['Mobile-Dominant', 'Desktop-Dominant', 'Balanced', 'Mixed']
       
       - name: platform_engagement_leader
-        description: "Which platform has better engagement based on bounce rate comparison"
+        description: "Most common platform with better engagement across months"
         tests:
           - accepted_values:
               values: ['Mobile-Better-Engagement', 'Desktop-Better-Engagement', 'Similar-Engagement']
       
       - name: total_visits
-        description: "Total estimated monthly visits across all platforms"
+        description: "Total estimated visits summed across all available months"
         tests:
           - not_null
           - dbt_utils.accepted_range:
@@ -157,19 +163,19 @@ models:
               inclusive: true
       
       - name: total_unique_visitors
-        description: "Total estimated unique visitors across all platforms"
+        description: "Total estimated unique visitors summed across all available months"
       
       - name: total_page_views
-        description: "Total estimated page views across all platforms"
+        description: "Total estimated page views summed across all available months"
       
       - name: desktop_visits
-        description: "Estimated monthly visits from desktop devices"
+        description: "Total estimated desktop visits summed across all available months"
       
       - name: mobile_visits
-        description: "Estimated monthly visits from mobile web browsers"
+        description: "Total estimated mobile visits summed across all available months"
       
       - name: total_pages_per_visit
-        description: "Average pages viewed per visit (all platforms)"
+        description: "Average pages viewed per visit across all months"
         tests:
           - dbt_utils.accepted_range:
               min_value: 0
@@ -178,7 +184,7 @@ models:
                 where: "total_pages_per_visit is not null"
       
       - name: total_visit_duration_seconds
-        description: "Average visit duration in seconds (all platforms)"
+        description: "Average visit duration in seconds across all months"
         tests:
           - dbt_utils.accepted_range:
               min_value: 0
@@ -187,7 +193,7 @@ models:
                 where: "total_visit_duration_seconds is not null"
       
       - name: total_bounce_rate
-        description: "Overall bounce rate across all platforms (0-1)"
+        description: "Average bounce rate across all months (0-1)"
         tests:
           - dbt_utils.accepted_range:
               min_value: 0
@@ -197,7 +203,7 @@ models:
                 where: "total_bounce_rate is not null"
       
       - name: desktop_bounce_rate
-        description: "Desktop bounce rate (0-1)"
+        description: "Average desktop bounce rate across all months (0-1)"
         tests:
           - dbt_utils.accepted_range:
               min_value: 0
@@ -207,7 +213,7 @@ models:
                 where: "desktop_bounce_rate is not null"
       
       - name: mobile_bounce_rate
-        description: "Mobile bounce rate (0-1)"
+        description: "Average mobile bounce rate across all months (0-1)"
         tests:
           - dbt_utils.accepted_range:
               min_value: 0
@@ -217,7 +223,7 @@ models:
                 where: "mobile_bounce_rate is not null"
       
       - name: desktop_direct_share
-        description: "Percentage of desktop traffic from direct sources (0-1)"
+        description: "Percentage of total desktop traffic from direct sources (calculated from aggregated volumes)"
         tests:
           - dbt_utils.accepted_range:
               min_value: 0
@@ -227,7 +233,7 @@ models:
                 where: "desktop_direct_share is not null"
       
       - name: desktop_organic_share
-        description: "Percentage of desktop traffic from organic search (0-1)"
+        description: "Percentage of total desktop traffic from organic search (calculated from aggregated volumes)"
         tests:
           - dbt_utils.accepted_range:
               min_value: 0
@@ -237,7 +243,7 @@ models:
                 where: "desktop_organic_share is not null"
       
       - name: desktop_paid_share
-        description: "Percentage of desktop traffic from paid search (0-1)"
+        description: "Percentage of total desktop traffic from paid search (calculated from aggregated volumes)"
         tests:
           - dbt_utils.accepted_range:
               min_value: 0
@@ -247,7 +253,7 @@ models:
                 where: "desktop_paid_share is not null"
       
       - name: desktop_referral_share
-        description: "Percentage of desktop traffic from referral sources (0-1)"
+        description: "Percentage of total desktop traffic from referral sources (calculated from aggregated volumes)"
         tests:
           - dbt_utils.accepted_range:
               min_value: 0
@@ -257,7 +263,7 @@ models:
                 where: "desktop_referral_share is not null"
       
       - name: desktop_social_share
-        description: "Percentage of desktop traffic from social media (0-1)"
+        description: "Percentage of total desktop traffic from social media (calculated from aggregated volumes)"
         tests:
           - dbt_utils.accepted_range:
               min_value: 0
@@ -267,7 +273,7 @@ models:
                 where: "desktop_social_share is not null"
       
       - name: desktop_display_share
-        description: "Percentage of desktop traffic from display advertising (0-1)"
+        description: "Percentage of total desktop traffic from display advertising (calculated from aggregated volumes)"
         tests:
           - dbt_utils.accepted_range:
               min_value: 0
@@ -277,7 +283,7 @@ models:
                 where: "desktop_display_share is not null"
       
       - name: desktop_email_share
-        description: "Percentage of desktop traffic from email campaigns (0-1)"
+        description: "Percentage of total desktop traffic from email campaigns (calculated from aggregated volumes)"
         tests:
           - dbt_utils.accepted_range:
               min_value: 0
@@ -287,28 +293,28 @@ models:
                 where: "desktop_email_share is not null"
       
       - name: desktop_direct_visits
-        description: "Raw number of desktop visits from direct traffic"
+        description: "Total desktop visits from direct traffic summed across all months"
       
       - name: desktop_organic_search_visits
-        description: "Raw number of desktop visits from organic search"
+        description: "Total desktop visits from organic search summed across all months"
       
       - name: desktop_paid_search_visits
-        description: "Raw number of desktop visits from paid search"
+        description: "Total desktop visits from paid search summed across all months"
       
       - name: desktop_referral_visits
-        description: "Raw number of desktop visits from referral traffic"
+        description: "Total desktop visits from referral traffic summed across all months"
       
       - name: desktop_social_visits
-        description: "Raw number of desktop visits from social media"
+        description: "Total desktop visits from social media summed across all months"
       
       - name: desktop_display_visits
-        description: "Raw number of desktop visits from display advertising"
+        description: "Total desktop visits from display advertising summed across all months"
       
       - name: desktop_email_visits
-        description: "Raw number of desktop visits from email campaigns"
+        description: "Total desktop visits from email campaigns summed across all months"
       
       - name: age_18_24_share
-        description: "Percentage of visitors aged 18-24 (0-1)"
+        description: "Average percentage of visitors aged 18-24 across all months (0-1)"
         tests:
           - dbt_utils.accepted_range:
               min_value: 0
@@ -318,7 +324,7 @@ models:
                 where: "age_18_24_share is not null"
       
       - name: age_25_34_share
-        description: "Percentage of visitors aged 25-34 (0-1)"
+        description: "Average percentage of visitors aged 25-34 across all months (0-1)"
         tests:
           - dbt_utils.accepted_range:
               min_value: 0
@@ -328,7 +334,7 @@ models:
                 where: "age_25_34_share is not null"
       
       - name: age_35_44_share
-        description: "Percentage of visitors aged 35-44 (0-1)"
+        description: "Average percentage of visitors aged 35-44 across all months (0-1)"
         tests:
           - dbt_utils.accepted_range:
               min_value: 0
@@ -338,7 +344,7 @@ models:
                 where: "age_35_44_share is not null"
       
       - name: age_45_54_share
-        description: "Percentage of visitors aged 45-54 (0-1)"
+        description: "Average percentage of visitors aged 45-54 across all months (0-1)"
         tests:
           - dbt_utils.accepted_range:
               min_value: 0
@@ -348,7 +354,7 @@ models:
                 where: "age_45_54_share is not null"
       
       - name: age_55_64_share
-        description: "Percentage of visitors aged 55-64 (0-1)"
+        description: "Average percentage of visitors aged 55-64 across all months (0-1)"
         tests:
           - dbt_utils.accepted_range:
               min_value: 0
@@ -358,7 +364,7 @@ models:
                 where: "age_55_64_share is not null"
       
       - name: age_65_plus_share
-        description: "Percentage of visitors aged 65 and above (0-1)"
+        description: "Average percentage of visitors aged 65 and above across all months (0-1)"
         tests:
           - dbt_utils.accepted_range:
               min_value: 0
@@ -368,7 +374,7 @@ models:
                 where: "age_65_plus_share is not null"
       
       - name: male_share
-        description: "Percentage of male visitors (0-1)"
+        description: "Average percentage of male visitors across all months (0-1)"
         tests:
           - dbt_utils.accepted_range:
               min_value: 0
@@ -378,7 +384,7 @@ models:
                 where: "male_share is not null"
       
       - name: female_share
-        description: "Percentage of female visitors (0-1)"
+        description: "Average percentage of female visitors across all months (0-1)"
         tests:
           - dbt_utils.accepted_range:
               min_value: 0
@@ -388,14 +394,14 @@ models:
                 where: "female_share is not null"
       
       - name: primary_age_segment
-        description: "Age group with the highest percentage of visitors"
+        description: "Age group with the highest percentage of visitors (calculated from averaged demographics)"
         tests:
           - not_null
           - accepted_values:
               values: ['18-24', '25-34', '35-44', '45-54', '55-64', '65+', 'Unknown']
       
       - name: primary_gender_segment
-        description: "Gender segment classification based on visitor distribution"
+        description: "Gender segment classification based on averaged visitor distribution"
         tests:
           - not_null
           - accepted_values:
@@ -427,3 +433,335 @@ models:
             where: "male_share is not null and female_share is not null"
             severity: warn
           name: "gender_shares_sum_reasonable"
+
+  - name: mart_company_digital_performance_timeseries
+    description: "Time series analysis mart for Danish companies focusing on digital performance growth patterns. Provides growth calculations, trend analysis, and performance momentum insights by comparing first and last available months."
+    columns:
+      - name: organization_id
+        description: "Unique identifier for each organization (primary key)"
+        tests:
+          - unique
+          - not_null
+      
+      - name: organization_name
+        description: "Name of the organization"
+        tests:
+          - not_null
+      
+      - name: organization_permalink
+        description: "Crunchbase permalink identifier for the organization"
+      
+      - name: organization_domain
+        description: "Standardized domain used for matching with traffic data"
+        tests:
+          - not_null
+      
+      - name: standardized_city
+        description: "Standardized Danish city name where organization is located"
+      
+      - name: standardized_region
+        description: "Standardized Danish region name"
+      
+      - name: organization_country_code
+        description: "ISO country code for organization's location (DNK for Danish companies)"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['DNK']
+      
+      - name: is_investor
+        description: "Boolean flag indicating if organization has investor-related roles"
+        tests:
+          - not_null
+          - accepted_values:
+              values: [true, false]
+      
+      - name: organization_created_at
+        description: "Timestamp when organization was created in Crunchbase"
+        tests:
+          - not_null
+      
+      - name: organization_updated_at
+        description: "Timestamp when organization was last updated in Crunchbase"
+        tests:
+          - not_null
+      
+      - name: site_domain
+        description: "Website domain from SimilarWeb traffic data"
+        tests:
+          - not_null
+      
+      - name: industry_category
+        description: "Primary industry category from SimilarWeb"
+      
+      - name: industry_subcategory
+        description: "More specific industry subcategory from SimilarWeb"
+      
+      - name: traffic_country
+        description: "Country code where the website traffic is primarily based"
+      
+      - name: match_confidence_score
+        description: "Confidence score for domain matching between organization and traffic data (0-1)"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+      
+      - name: first_month
+        description: "First month with available traffic data (YYYY-MM format)"
+        tests:
+          - not_null
+      
+      - name: last_month
+        description: "Last month with available traffic data (YYYY-MM format)"
+        tests:
+          - not_null
+      
+      - name: months_available
+        description: "Number of distinct months with traffic data available"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 2
+              inclusive: true
+      
+      - name: months_span
+        description: "Total months between first and last month (including gaps)"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 1
+              inclusive: true
+      
+      - name: dominant_platform_preference
+        description: "Most common platform usage pattern across the time period"
+        tests:
+          - accepted_values:
+              values: ['Mobile-Dominant', 'Desktop-Dominant', 'Balanced', 'Mixed']
+      
+      - name: dominant_quality_tier
+        description: "Most common quality tier across the time period"
+        tests:
+          - accepted_values:
+              values: ['High-Quality', 'Medium-Quality', 'Low-Quality', 'Unknown-Quality']
+      
+      - name: avg_visits
+        description: "Average monthly visits across the entire period"
+      
+      - name: avg_quality_score
+        description: "Average quality score across the entire period"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+              config:
+                where: "avg_quality_score is not null"
+      
+      - name: first_month_visits
+        description: "Total visits in the first month with data"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      
+      - name: first_month_quality
+        description: "Quality score in the first month with data"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+              config:
+                where: "first_month_quality is not null"
+      
+      - name: first_month_global_rank
+        description: "Global ranking in the first month with data"
+      
+      - name: first_month_country_rank
+        description: "Country ranking in the first month with data"
+      
+      - name: first_month_unique_visitors
+        description: "Unique visitors in the first month with data"
+      
+      - name: first_month_bounce_rate
+        description: "Bounce rate in the first month with data"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+              config:
+                where: "first_month_bounce_rate is not null"
+      
+      - name: last_month_visits
+        description: "Total visits in the last month with data"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      
+      - name: last_month_quality
+        description: "Quality score in the last month with data"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+              config:
+                where: "last_month_quality is not null"
+      
+      - name: last_month_global_rank
+        description: "Global ranking in the last month with data"
+      
+      - name: last_month_country_rank
+        description: "Country ranking in the last month with data"
+      
+      - name: last_month_unique_visitors
+        description: "Unique visitors in the last month with data"
+      
+      - name: last_month_bounce_rate
+        description: "Bounce rate in the last month with data"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+              config:
+                where: "last_month_bounce_rate is not null"
+      
+      - name: peak_visits
+        description: "Highest monthly visits achieved during the period"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      
+      - name: best_global_rank
+        description: "Best (lowest) global ranking achieved during the period"
+      
+      - name: peak_quality_score
+        description: "Highest quality score achieved during the period"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+              config:
+                where: "peak_quality_score is not null"
+      
+      - name: visits_growth_rate
+        description: "Overall visits growth rate from first to last month ((last-first)/first)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: -1
+              inclusive: true
+              config:
+                where: "visits_growth_rate is not null"
+      
+      - name: visits_monthly_growth_rate
+        description: "Compound monthly growth rate for visits"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: -1
+              inclusive: true
+              config:
+                where: "visits_monthly_growth_rate is not null"
+      
+      - name: visits_absolute_change
+        description: "Absolute change in visits from first to last month"
+      
+      - name: quality_score_change
+        description: "Change in quality score from first to last month"
+      
+      - name: quality_score_change_rate
+        description: "Percentage change in quality score from first to last month"
+      
+      - name: global_rank_change
+        description: "Change in global rank from first to last month (positive = improvement)"
+      
+      - name: country_rank_change
+        description: "Change in country rank from first to last month (positive = improvement)"
+      
+      - name: current_vs_peak_visits_ratio
+        description: "Ratio of last month visits to peak visits achieved (1.0 = at peak)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+              config:
+                where: "current_vs_peak_visits_ratio is not null"
+      
+      - name: current_vs_peak_quality_ratio
+        description: "Ratio of last month quality to peak quality achieved (1.0 = at peak)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+              config:
+                where: "current_vs_peak_quality_ratio is not null"
+      
+      - name: growth_category
+        description: "Classification of overall growth pattern based on visits growth rate"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['High Growth', 'Moderate Growth', 'Stable', 'Declining', 'Significant Decline', 'Insufficient Data']
+      
+      - name: quality_trend
+        description: "Classification of quality score trend from first to last month"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Quality Improving', 'Quality Stable', 'Quality Declining', 'Quality Unknown']
+      
+      - name: ranking_trend
+        description: "Classification of global ranking trend (positive change = improvement)"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Rank Significantly Improved', 'Rank Improved', 'Rank Stable', 'Rank Declined', 'Rank Significantly Declined', 'Rank Unknown']
+      
+      - name: performance_momentum
+        description: "Classification of current performance relative to peak achieved"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Near Peak Performance', 'Strong Performance', 'Moderate Performance', 'Below Peak Performance', 'Performance Unknown']
+      
+      - name: growth_health_score
+        description: "Combined growth health score (0-100) based on visits growth and quality improvement"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 100
+              inclusive: true
+              config:
+                where: "growth_health_score is not null"
+      
+      - name: _mart_created_at
+        description: "Timestamp when this mart record was created"
+        tests:
+          - not_null
+    
+    tests:
+      - dbt_utils.expression_is_true:
+          expression: "first_month <= last_month"
+          name: "first_month_before_last_month"
+      
+      - dbt_utils.expression_is_true:
+          expression: "months_available <= months_span"
+          name: "available_months_within_span"
+      
+      - dbt_utils.expression_is_true:
+          expression: "peak_visits >= greatest(first_month_visits, last_month_visits)"
+          config:
+            where: "peak_visits is not null and first_month_visits is not null and last_month_visits is not null"
+          name: "peak_visits_is_maximum"
