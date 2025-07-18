@@ -774,11 +774,6 @@ models:
         tests:
           - not_null
       
-      - name: subcategory
-        description: "More specific industry subcategory from SimilarWeb"
-        tests:
-          - not_null
-      
       - name: total_companies
         description: "Total number of distinct Danish companies operating in this category"
         tests:

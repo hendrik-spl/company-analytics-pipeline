@@ -21,7 +21,6 @@ category_company_traffic as (
     select
         {# Category dimensions #}
         traffic.site_main_category,
-        traffic.site_category,
         
         {# Company and geographic info #}
         bridge.organization_id,
@@ -73,7 +72,6 @@ category_aggregations as (
     select
         {# Category hierarchy #}
         site_main_category as main_category,
-        site_category as subcategory,
         
         {# Company metrics #}
         count(distinct organization_id) as total_companies,
@@ -202,14 +200,13 @@ category_aggregations as (
         avg(total_visits) as avg_company_visits
 
     from category_company_traffic
-    group by site_main_category, site_category
+    group by site_main_category
 ),
 
 {# Calculate market concentration metrics #}
 market_concentration as (
     select
         cct.site_main_category,
-        cct.site_category,
         
         {# Calculate traffic concentration using coefficient of variation #}
         case 
@@ -233,14 +230,13 @@ market_concentration as (
         end as companies_per_million_visits
 
     from category_company_traffic as cct
-    group by cct.site_main_category, cct.site_category
+    group by cct.site_main_category
 ),
 
 final as (
     select
         {# Primary dimensions #}
         agg.main_category,
-        agg.subcategory,
         
         {# Company composition #}
         agg.total_companies,
@@ -381,7 +377,6 @@ final as (
     from category_aggregations as agg
     left join market_concentration as mc
         on agg.main_category = mc.site_main_category
-        and agg.subcategory = mc.site_category
     where agg.total_companies >= 1  {# Only include categories with at least one Danish company #}
 )
 
