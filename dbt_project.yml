@@ -10,11 +10,11 @@ profile: 'company_data_pipeline'
 
 # These configurations specify where dbt should look for different types of files
 model-paths: ["models"]
-analysis-paths: ["analyses"] 
-test-paths: ["tests"]
-seed-paths: ["seeds"]
-macro-paths: ["macros"]
-snapshot-paths: ["snapshots"]
+# analysis-paths: ["analyses"] 
+# test-paths: ["tests"]
+# seed-paths: ["seeds"]
+# macro-paths: ["macros"]
+# snapshot-paths: ["snapshots"]
 
 # Directory which will store compiled SQL files
 target-path: "target"
