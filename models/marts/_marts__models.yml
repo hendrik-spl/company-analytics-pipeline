@@ -1,0 +1,429 @@
+version: 2
+
+models:
+  - name: mart_company_digital_performance
+    description: "Comprehensive digital performance mart for Danish companies with web traffic data. Provides a single source of truth for analyzing company digital presence, traffic patterns, audience demographics, and engagement quality."
+    columns:
+      - name: organization_id
+        description: "Unique identifier for each organization (primary key)"
+        tests:
+          - unique
+          - not_null
+      
+      - name: organization_name
+        description: "Name of the organization"
+        tests:
+          - not_null
+      
+      - name: organization_permalink
+        description: "Crunchbase permalink identifier for the organization"
+      
+      - name: organization_domain
+        description: "Standardized domain used for matching with traffic data"
+        tests:
+          - not_null
+      
+      - name: standardized_city
+        description: "Standardized Danish city name where organization is located"
+      
+      - name: standardized_region
+        description: "Standardized Danish region name (e.g., Capital Region, Central Denmark Region)"
+      
+      - name: organization_country_code
+        description: "ISO country code for organization's location (DNK for Danish companies)"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['DNK']
+      
+      - name: is_investor
+        description: "Boolean flag indicating if organization has investor-related roles"
+        tests:
+          - not_null
+          - accepted_values:
+              values: [true, false]
+      
+      - name: organization_created_at
+        description: "Timestamp when organization was created in Crunchbase"
+        tests:
+          - not_null
+      
+      - name: organization_updated_at
+        description: "Timestamp when organization was last updated in Crunchbase"
+        tests:
+          - not_null
+      
+      - name: site_domain
+        description: "Website domain from SimilarWeb traffic data"
+        tests:
+          - not_null
+      
+      - name: traffic_year
+        description: "Year of the traffic measurement"
+        tests:
+          - not_null
+      
+      - name: traffic_month
+        description: "Month of the traffic measurement (1-12)"
+        tests:
+          - not_null
+          - accepted_values:
+              values: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+      
+      - name: industry_category
+        description: "Primary industry category from SimilarWeb (e.g., E-commerce, News & Media, Finance)"
+      
+      - name: industry_subcategory
+        description: "More specific industry subcategory from SimilarWeb"
+      
+      - name: traffic_country
+        description: "Country code where the website traffic is primarily based"
+      
+      - name: match_confidence_score
+        description: "Confidence score for domain matching between organization and traffic data (0-1)"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+      
+      - name: site_global_rank
+        description: "Global ranking by traffic volume (lower number = higher rank)"
+      
+      - name: site_country_rank
+        description: "Country-specific ranking by traffic volume"
+      
+      - name: site_main_category_rank
+        description: "Ranking within the main industry category"
+      
+      - name: site_category_rank
+        description: "Ranking within the specific industry subcategory"
+      
+      - name: digital_performance_score
+        description: "Overall digital performance score (0-1) based on traffic quality metrics"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+              config:
+                where: "digital_performance_score is not null"
+      
+      - name: performance_tier
+        description: "Categorical performance classification based on digital performance score"
+        tests:
+          - accepted_values:
+              values: ['High-Quality', 'Medium-Quality', 'Low-Quality', 'Unknown-Quality']
+      
+      - name: mobile_traffic_ratio
+        description: "Ratio of mobile visits to total (mobile + desktop) visits"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+              config:
+                where: "mobile_traffic_ratio is not null"
+      
+      - name: desktop_traffic_ratio
+        description: "Ratio of desktop visits to total (mobile + desktop) visits"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+              config:
+                where: "desktop_traffic_ratio is not null"
+      
+      - name: platform_preference
+        description: "Classification of platform usage pattern"
+        tests:
+          - accepted_values:
+              values: ['Mobile-Dominant', 'Desktop-Dominant', 'Balanced', 'Mixed']
+      
+      - name: platform_engagement_leader
+        description: "Which platform has better engagement based on bounce rate comparison"
+        tests:
+          - accepted_values:
+              values: ['Mobile-Better-Engagement', 'Desktop-Better-Engagement', 'Similar-Engagement']
+      
+      - name: total_visits
+        description: "Total estimated monthly visits across all platforms"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 1
+              inclusive: true
+      
+      - name: total_unique_visitors
+        description: "Total estimated unique visitors across all platforms"
+      
+      - name: total_page_views
+        description: "Total estimated page views across all platforms"
+      
+      - name: desktop_visits
+        description: "Estimated monthly visits from desktop devices"
+      
+      - name: mobile_visits
+        description: "Estimated monthly visits from mobile web browsers"
+      
+      - name: total_pages_per_visit
+        description: "Average pages viewed per visit (all platforms)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+              config:
+                where: "total_pages_per_visit is not null"
+      
+      - name: total_visit_duration_seconds
+        description: "Average visit duration in seconds (all platforms)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+              config:
+                where: "total_visit_duration_seconds is not null"
+      
+      - name: total_bounce_rate
+        description: "Overall bounce rate across all platforms (0-1)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+              config:
+                where: "total_bounce_rate is not null"
+      
+      - name: desktop_bounce_rate
+        description: "Desktop bounce rate (0-1)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+              config:
+                where: "desktop_bounce_rate is not null"
+      
+      - name: mobile_bounce_rate
+        description: "Mobile bounce rate (0-1)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+              config:
+                where: "mobile_bounce_rate is not null"
+      
+      - name: desktop_direct_share
+        description: "Percentage of desktop traffic from direct sources (0-1)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+              config:
+                where: "desktop_direct_share is not null"
+      
+      - name: desktop_organic_share
+        description: "Percentage of desktop traffic from organic search (0-1)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+              config:
+                where: "desktop_organic_share is not null"
+      
+      - name: desktop_paid_share
+        description: "Percentage of desktop traffic from paid search (0-1)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+              config:
+                where: "desktop_paid_share is not null"
+      
+      - name: desktop_referral_share
+        description: "Percentage of desktop traffic from referral sources (0-1)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+              config:
+                where: "desktop_referral_share is not null"
+      
+      - name: desktop_social_share
+        description: "Percentage of desktop traffic from social media (0-1)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+              config:
+                where: "desktop_social_share is not null"
+      
+      - name: desktop_display_share
+        description: "Percentage of desktop traffic from display advertising (0-1)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+              config:
+                where: "desktop_display_share is not null"
+      
+      - name: desktop_email_share
+        description: "Percentage of desktop traffic from email campaigns (0-1)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+              config:
+                where: "desktop_email_share is not null"
+      
+      - name: desktop_direct_visits
+        description: "Raw number of desktop visits from direct traffic"
+      
+      - name: desktop_organic_search_visits
+        description: "Raw number of desktop visits from organic search"
+      
+      - name: desktop_paid_search_visits
+        description: "Raw number of desktop visits from paid search"
+      
+      - name: desktop_referral_visits
+        description: "Raw number of desktop visits from referral traffic"
+      
+      - name: desktop_social_visits
+        description: "Raw number of desktop visits from social media"
+      
+      - name: desktop_display_visits
+        description: "Raw number of desktop visits from display advertising"
+      
+      - name: desktop_email_visits
+        description: "Raw number of desktop visits from email campaigns"
+      
+      - name: age_18_24_share
+        description: "Percentage of visitors aged 18-24 (0-1)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+              config:
+                where: "age_18_24_share is not null"
+      
+      - name: age_25_34_share
+        description: "Percentage of visitors aged 25-34 (0-1)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+              config:
+                where: "age_25_34_share is not null"
+      
+      - name: age_35_44_share
+        description: "Percentage of visitors aged 35-44 (0-1)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+              config:
+                where: "age_35_44_share is not null"
+      
+      - name: age_45_54_share
+        description: "Percentage of visitors aged 45-54 (0-1)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+              config:
+                where: "age_45_54_share is not null"
+      
+      - name: age_55_64_share
+        description: "Percentage of visitors aged 55-64 (0-1)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+              config:
+                where: "age_55_64_share is not null"
+      
+      - name: age_65_plus_share
+        description: "Percentage of visitors aged 65 and above (0-1)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+              config:
+                where: "age_65_plus_share is not null"
+      
+      - name: male_share
+        description: "Percentage of male visitors (0-1)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+              config:
+                where: "male_share is not null"
+      
+      - name: female_share
+        description: "Percentage of female visitors (0-1)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+              config:
+                where: "female_share is not null"
+      
+      - name: primary_age_segment
+        description: "Age group with the highest percentage of visitors"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['18-24', '25-34', '35-44', '45-54', '55-64', '65+', 'Unknown']
+      
+      - name: primary_gender_segment
+        description: "Gender segment classification based on visitor distribution"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Male-Leaning', 'Female-Leaning', 'Balanced', 'Unknown']
+      
+      - name: _mart_created_at
+        description: "Timestamp when this mart record was created"
+        tests:
+          - not_null
+    
+    tests:
+      - dbt_utils.expression_is_true:
+          expression: "mobile_traffic_ratio + desktop_traffic_ratio <= 1.05"
+          config:
+            where: "mobile_traffic_ratio is not null and desktop_traffic_ratio is not null"
+            severity: warn
+          name: "platform_ratios_sum_reasonable"
+      
+      - dbt_utils.expression_is_true:
+          expression: "age_18_24_share + age_25_34_share + age_35_44_share + age_45_54_share + age_55_64_share + age_65_plus_share <= 1.05"
+          config:
+            where: "age_18_24_share is not null and age_25_34_share is not null and age_35_44_share is not null and age_45_54_share is not null and age_55_64_share is not null and age_65_plus_share is not null"
+            severity: warn
+          name: "age_shares_sum_reasonable"
+      
+      - dbt_utils.expression_is_true:
+          expression: "male_share + female_share <= 1.05"
+          config:
+            where: "male_share is not null and female_share is not null"
+            severity: warn
+          name: "gender_shares_sum_reasonable"
