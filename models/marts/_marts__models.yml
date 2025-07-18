@@ -765,3 +765,379 @@ models:
           config:
             where: "peak_visits is not null and first_month_visits is not null and last_month_visits is not null"
           name: "peak_visits_is_maximum"
+
+  - name: mart_category_insights
+    description: "Category-level insights mart analyzing digital performance patterns across industry categories where Danish companies operate. Provides market concentration analysis, demographic composition, platform preferences, and geographic distribution by category/subcategory."
+    columns:
+      - name: main_category
+        description: "Primary industry category from SimilarWeb (e.g., E-commerce, News & Media, Finance)"
+        tests:
+          - not_null
+      
+      - name: subcategory
+        description: "More specific industry subcategory from SimilarWeb"
+        tests:
+          - not_null
+      
+      - name: total_companies
+        description: "Total number of distinct Danish companies operating in this category"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 1
+              inclusive: true
+      
+      - name: investor_companies
+        description: "Number of companies in this category that have investor-related roles"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      
+      - name: investor_ratio
+        description: "Ratio of investor companies to total companies in category (0-1)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+              config:
+                where: "investor_ratio is not null"
+      
+      - name: unique_cities
+        description: "Number of distinct Danish cities represented in this category"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 1
+              inclusive: true
+      
+      - name: unique_regions
+        description: "Number of distinct Danish regions represented in this category"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 1
+              inclusive: true
+      
+      - name: dominant_region
+        description: "Most common Danish region for companies in this category"
+      
+      - name: dominant_city
+        description: "Most common Danish city for companies in this category"
+      
+      - name: total_category_visits
+        description: "Sum of all visits across companies in this category"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 1
+              inclusive: true
+      
+      - name: total_category_unique_visitors
+        description: "Sum of all unique visitors across companies in this category"
+      
+      - name: total_category_page_views
+        description: "Sum of all page views across companies in this category"
+      
+      - name: total_desktop_visits
+        description: "Sum of all desktop visits across companies in this category"
+      
+      - name: total_mobile_visits
+        description: "Sum of all mobile visits across companies in this category"
+      
+      - name: category_mobile_ratio
+        description: "Ratio of mobile visits to total visits for the category (0-1)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+              config:
+                where: "category_mobile_ratio is not null"
+      
+      - name: category_desktop_ratio
+        description: "Ratio of desktop visits to total visits for the category (0-1)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+              config:
+                where: "category_desktop_ratio is not null"
+      
+      - name: dominant_platform_preference
+        description: "Most common platform preference across companies in category"
+        tests:
+          - accepted_values:
+              values: ['Mobile-Dominant', 'Desktop-Dominant', 'Balanced', 'Mixed']
+      
+      - name: category_avg_quality_score
+        description: "Traffic-weighted average quality score across companies in category (0-1)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+              config:
+                where: "category_avg_quality_score is not null"
+      
+      - name: dominant_quality_tier
+        description: "Most common quality tier across companies in category"
+        tests:
+          - accepted_values:
+              values: ['High-Quality', 'Medium-Quality', 'Low-Quality', 'Unknown-Quality']
+      
+      - name: traffic_concentration_cv
+        description: "Coefficient of variation for traffic distribution (higher = more concentrated)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+              config:
+                where: "traffic_concentration_cv is not null"
+      
+      - name: top_company_traffic_share
+        description: "Share of total category traffic captured by largest company (0-1)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+              config:
+                where: "top_company_traffic_share is not null"
+      
+      - name: companies_per_million_visits
+        description: "Number of companies per million visits in category (market efficiency metric)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+              config:
+                where: "companies_per_million_visits is not null"
+      
+      - name: market_concentration_tier
+        description: "Classification of market concentration based on top company traffic share"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Highly Concentrated', 'Moderately Concentrated', 'Somewhat Concentrated', 'Fragmented']
+      
+      - name: market_size_tier
+        description: "Classification of market size based on number of companies"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Large Market', 'Medium Market', 'Small Market', 'Niche Market']
+      
+      - name: largest_company_visits
+        description: "Traffic volume of the largest company in this category"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 1
+              inclusive: true
+      
+      - name: smallest_company_visits
+        description: "Traffic volume of the smallest company in this category"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 1
+              inclusive: true
+      
+      - name: avg_company_visits
+        description: "Average traffic volume per company in this category"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 1
+              inclusive: true
+      
+      - name: category_age_18_24_share
+        description: "Traffic-weighted average percentage of visitors aged 18-24 in category (0-1)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+              config:
+                where: "category_age_18_24_share is not null"
+      
+      - name: category_age_25_34_share
+        description: "Traffic-weighted average percentage of visitors aged 25-34 in category (0-1)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+              config:
+                where: "category_age_25_34_share is not null"
+      
+      - name: category_age_35_44_share
+        description: "Traffic-weighted average percentage of visitors aged 35-44 in category (0-1)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+              config:
+                where: "category_age_35_44_share is not null"
+      
+      - name: category_age_45_54_share
+        description: "Traffic-weighted average percentage of visitors aged 45-54 in category (0-1)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+              config:
+                where: "category_age_45_54_share is not null"
+      
+      - name: category_age_55_64_share
+        description: "Traffic-weighted average percentage of visitors aged 55-64 in category (0-1)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+              config:
+                where: "category_age_55_64_share is not null"
+      
+      - name: category_age_65_plus_share
+        description: "Traffic-weighted average percentage of visitors aged 65+ in category (0-1)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+              config:
+                where: "category_age_65_plus_share is not null"
+      
+      - name: category_male_share
+        description: "Traffic-weighted average percentage of male visitors in category (0-1)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+              config:
+                where: "category_male_share is not null"
+      
+      - name: category_female_share
+        description: "Traffic-weighted average percentage of female visitors in category (0-1)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+              config:
+                where: "category_female_share is not null"
+      
+      - name: primary_age_segment
+        description: "Age group with highest traffic-weighted representation in category"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['18-24', '25-34', '35-44', '45-54', '55-64', '65+', 'Unknown']
+      
+      - name: primary_gender_segment
+        description: "Gender segment classification based on traffic-weighted visitor distribution"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Male-Leaning', 'Female-Leaning', 'Balanced', 'Unknown']
+      
+      - name: category_direct_share
+        description: "Percentage of category desktop traffic from direct sources (0-1)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+              config:
+                where: "category_direct_share is not null"
+      
+      - name: category_organic_share
+        description: "Percentage of category desktop traffic from organic search (0-1)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+              config:
+                where: "category_organic_share is not null"
+      
+      - name: category_paid_share
+        description: "Percentage of category desktop traffic from paid search (0-1)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+              config:
+                where: "category_paid_share is not null"
+      
+      - name: category_referral_share
+        description: "Percentage of category desktop traffic from referral sources (0-1)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+              config:
+                where: "category_referral_share is not null"
+      
+      - name: category_social_share
+        description: "Percentage of category desktop traffic from social media (0-1)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+              config:
+                where: "category_social_share is not null"
+      
+      - name: _mart_created_at
+        description: "Timestamp when this mart record was created"
+        tests:
+          - not_null
+    
+    tests:
+      - dbt_utils.expression_is_true:
+          expression: "investor_companies <= total_companies"
+          name: "investor_count_logical"
+      
+      - dbt_utils.expression_is_true:
+          expression: "category_mobile_ratio + category_desktop_ratio <= 1.05"
+          config:
+            where: "category_mobile_ratio is not null and category_desktop_ratio is not null"
+            severity: warn
+          name: "category_platform_ratios_sum_reasonable"
+      
+      - dbt_utils.expression_is_true:
+          expression: "category_age_18_24_share + category_age_25_34_share + category_age_35_44_share + category_age_45_54_share + category_age_55_64_share + category_age_65_plus_share <= 1.05"
+          config:
+            where: "category_age_18_24_share is not null and category_age_25_34_share is not null and category_age_35_44_share is not null and category_age_45_54_share is not null and category_age_55_64_share is not null and category_age_65_plus_share is not null"
+            severity: warn
+          name: "category_age_shares_sum_reasonable"
+      
+      - dbt_utils.expression_is_true:
+          expression: "category_male_share + category_female_share <= 1.05"
+          config:
+            where: "category_male_share is not null and category_female_share is not null"
+            severity: warn
+          name: "category_gender_shares_sum_reasonable"
+      
+      - dbt_utils.expression_is_true:
+          expression: "largest_company_visits >= avg_company_visits"
+          config:
+            where: "largest_company_visits is not null and avg_company_visits is not null"
+          name: "largest_company_above_average"
+      
+      - dbt_utils.expression_is_true:
+          expression: "avg_company_visits >= smallest_company_visits"
+          config:
+            where: "avg_company_visits is not null and smallest_company_visits is not null"
+          name: "average_above_smallest_company"
